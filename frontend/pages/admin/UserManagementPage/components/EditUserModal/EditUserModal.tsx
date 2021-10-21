@@ -11,12 +11,15 @@ interface IEditUserModalProps {
   defaultName?: string;
   defaultEmail?: string;
   defaultGlobalRole?: string | null;
+  defaultTeamRole?: string;
   defaultTeams?: ITeam[];
   availableTeams: ITeam[];
+  currentTeam: ITeam;
   isPremiumTier: boolean;
   smtpConfigured: boolean;
   canUseSso: boolean; // corresponds to whether SSO is enabled for the organization
   isSsoEnabled?: boolean; // corresponds to whether SSO is enabled for the individual user
+  isModifiedByGlobalAdmin?: boolean | false;
 }
 
 const baseClass = "edit-user-modal";
@@ -28,13 +31,18 @@ const EditUserModal = (props: IEditUserModalProps): JSX.Element => {
     defaultName,
     defaultEmail,
     defaultGlobalRole,
+    defaultTeamRole,
     defaultTeams,
     availableTeams,
     isPremiumTier,
     smtpConfigured,
     canUseSso,
     isSsoEnabled,
+    isModifiedByGlobalAdmin,
+    currentTeam,
   } = props;
+
+  console.log("edit defaultGlobalRole: ", defaultGlobalRole);
 
   return (
     <Modal
@@ -46,6 +54,7 @@ const EditUserModal = (props: IEditUserModalProps): JSX.Element => {
         defaultName={defaultName}
         defaultEmail={defaultEmail}
         defaultGlobalRole={defaultGlobalRole}
+        defaultTeamRole={defaultTeamRole}
         defaultTeams={defaultTeams}
         onCancel={onCancel}
         onSubmit={onSubmit}
@@ -55,6 +64,8 @@ const EditUserModal = (props: IEditUserModalProps): JSX.Element => {
         smtpConfigured={smtpConfigured}
         canUseSso={canUseSso}
         isSsoEnabled={isSsoEnabled}
+        isModifiedByGlobalAdmin={isModifiedByGlobalAdmin}
+        currentTeam={currentTeam}
       />
     </Modal>
   );

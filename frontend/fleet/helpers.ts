@@ -1,4 +1,4 @@
-import { flatMap, omit, pick, size, memoize } from "lodash";
+import { flatMap, omit, pick, size, memoize, toNumber } from "lodash";
 import md5 from "js-md5";
 import moment from "moment";
 import yaml from "js-yaml";
@@ -662,7 +662,8 @@ const getSortedTeamOptions = memoize((teams: ITeam[]) =>
 export const generateTeamFilterDropdownOptions = (
   teams: ITeam[],
   currentUser: IUser | null,
-  isOnGlobalTeam: boolean
+  isOnGlobalTeam: boolean,
+  hideAllTeamsOption: boolean
 ) => {
   let currentUserTeams: ITeam[] = [];
   if (isOnGlobalTeam) {
@@ -671,17 +672,19 @@ export const generateTeamFilterDropdownOptions = (
     currentUserTeams = currentUser.teams;
   }
 
-  const allTeamsOption = [
-    {
+  const allTeamOption = [];
+
+  if (!hideAllTeamsOption) {
+    allTeamOption.push({
       disabled: false,
       label: "All teams",
       value: 0,
-    },
-  ];
+    });
+  }
 
   const sortedCurrentUserTeamOptions = getSortedTeamOptions(currentUserTeams);
 
-  return allTeamsOption.concat(sortedCurrentUserTeamOptions);
+  return allTeamOption.concat(sortedCurrentUserTeamOptions);
 };
 
 export const getValidatedTeamId = (

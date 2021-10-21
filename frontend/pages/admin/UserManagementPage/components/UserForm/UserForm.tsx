@@ -25,6 +25,7 @@ import Radio from "components/forms/fields/Radio";
 import InfoBanner from "components/InfoBanner/InfoBanner";
 import SelectedTeamsForm from "../SelectedTeamsForm/SelectedTeamsForm";
 import OpenNewTabIcon from "../../../../../../assets/images/open-new-tab-12x12@2x.png";
+import SelectRoleForm from "../SelectRoleForm/SelectRoleForm";
 
 const baseClass = "create-user-form";
 
@@ -83,7 +84,10 @@ interface ICreateUserFormProps {
   defaultName?: string;
   defaultEmail?: string;
   currentUserId?: number;
+  currentTeam?: ITeam;
+  isModifiedByGlobalAdmin?: boolean | false;
   defaultGlobalRole?: string | null;
+  defaultTeamRole?: string;
   defaultTeams?: ITeam[];
   isPremiumTier: boolean;
   smtpConfigured?: boolean;
@@ -122,8 +126,6 @@ class UserForm extends Component<ICreateUserFormProps, ICreateUserFormState> {
       },
       isGlobalUser: props.defaultGlobalRole !== null,
     };
-
-    const { isPremiumTier } = props;
   }
 
   onInputChange = (formField: string): ((value: string) => void) => {
@@ -178,6 +180,16 @@ class UserForm extends Component<ICreateUserFormProps, ICreateUserFormState> {
   };
 
   onSelectedTeamChange = (teams: ITeam[]): void => {
+    const { formData } = this.state;
+    this.setState({
+      formData: {
+        ...formData,
+        teams,
+      },
+    });
+  };
+
+  onTeamRoleChange = (teams: ITeam[]): void => {
     const { formData } = this.state;
     this.setState({
       formData: {
@@ -293,9 +305,13 @@ class UserForm extends Component<ICreateUserFormProps, ICreateUserFormState> {
   renderGlobalRoleForm = (): JSX.Element => {
     const { onGlobalUserRoleChange } = this;
     const {
-      formData: { global_role },
+      formData: { global_role, teams },
     } = this.state;
-    const { isPremiumTier } = this.props;
+    const {
+      availableTeams,
+      isModifiedByGlobalAdmin,
+      isPremiumTier,
+    } = this.props;
     return (
       <>
         {isPremiumTier && (
@@ -348,37 +364,58 @@ class UserForm extends Component<ICreateUserFormProps, ICreateUserFormState> {
   };
 
   renderTeamsForm = (): JSX.Element => {
-    const { onSelectedTeamChange, renderNoTeamsMessage } = this;
-    const { availableTeams, isPremiumTier } = this.props;
+    const {
+      onSelectedTeamChange,
+      renderNoTeamsMessage,
+      onTeamRoleChange,
+    } = this;
+    const {
+      availableTeams,
+      isModifiedByGlobalAdmin,
+      defaultTeamRole,
+      currentTeam,
+    } = this.props;
     const {
       formData: { teams },
     } = this.state;
 
     return (
       <>
-        <InfoBanner className={`${baseClass}__user-permissions-info`}>
-          <p>
-            Users can be members of multiple teams and can only manage or
-            observe team-specific users, entities, and settings in Fleet.
-          </p>
-          <a
-            href="https://fleetdm.com/docs/using-fleet/permissions#team-member-permissions"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn more about user permissions
-            <img src={OpenNewTabIcon} alt="open new tab" />
-          </a>
-        </InfoBanner>
-        {availableTeams.length > 0 ? (
-          <SelectedTeamsForm
-            availableTeams={availableTeams}
-            usersCurrentTeams={teams}
-            onFormChange={onSelectedTeamChange}
-          />
-        ) : (
-          renderNoTeamsMessage()
-        )}
+        {availableTeams.length &&
+          (isModifiedByGlobalAdmin ? (
+            <>
+              <InfoBanner className={`${baseClass}__user-permissions-info`}>
+                <p>
+                  Users can be members of multiple teams and can only manage or
+                  observe team-specific users, entities, and settings in Fleet.
+                </p>
+                <a
+                  href="https://fleetdm.com/docs/using-fleet/permissions#team-member-permissions"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Learn more about user permissions
+                  <img src={OpenNewTabIcon} alt="open new tab" />
+                </a>
+              </InfoBanner>
+              <SelectedTeamsForm
+                availableTeams={availableTeams}
+                usersCurrentTeams={teams}
+                onFormChange={onSelectedTeamChange}
+              />
+            </>
+          ) : (
+            <>
+              <p className={`${baseClass}__label`}>Role</p>
+              <SelectRoleForm
+                currentTeam={currentTeam || teams[0]}
+                teams={teams}
+                defaultTeamRole={defaultTeamRole || "observer"}
+                onFormChange={onTeamRoleChange}
+              />
+            </>
+          ))}
+        {!availableTeams.length && renderNoTeamsMessage()}
       </>
     );
   };
@@ -396,6 +433,8 @@ class UserForm extends Component<ICreateUserFormProps, ICreateUserFormState> {
       smtpConfigured,
       canUseSso,
       isNewUser,
+      currentTeam,
+      isModifiedByGlobalAdmin,
       serverErrors,
     } = this.props;
     const {
@@ -424,7 +463,7 @@ class UserForm extends Component<ICreateUserFormProps, ICreateUserFormState> {
           name="name"
           onChange={onInputChange("name")}
           placeholder="Full name"
-          value={name}
+          value={name || ""}
         />
         <div
           className="email-disabled"
@@ -437,7 +476,7 @@ class UserForm extends Component<ICreateUserFormProps, ICreateUserFormState> {
             name="email"
             onChange={onInputChange("email")}
             placeholder="Email"
-            value={email}
+            value={email || ""}
             disabled={!isNewUser && !smtpConfigured}
           />
         </div>
@@ -556,7 +595,7 @@ class UserForm extends Component<ICreateUserFormProps, ICreateUserFormState> {
                     name="password"
                     onChange={onInputChange("password")}
                     placeholder="Password"
-                    value={password}
+                    value={password || ""}
                     type="password"
                     hint={[
                       "Must include 7 characters, at least 1 number (e.g. 0 - 9), and at least 1 symbol (e.g. &*#)",
@@ -582,24 +621,32 @@ class UserForm extends Component<ICreateUserFormProps, ICreateUserFormState> {
           <div className={`${baseClass}__selected-teams-container`}>
             <div className={`${baseClass}__team-radios`}>
               <p className={`${baseClass}__label`}>Team</p>
-              <Radio
-                className={`${baseClass}__radio-input`}
-                label={"Global user"}
-                id={"global-user"}
-                checked={isGlobalUser}
-                value={UserTeamType.GlobalUser}
-                name={"userTeamType"}
-                onChange={onIsGlobalUserChange}
-              />
-              <Radio
-                className={`${baseClass}__radio-input`}
-                label={"Assign teams"}
-                id={"assign-teams"}
-                checked={!isGlobalUser}
-                value={UserTeamType.AssignTeams}
-                name={"userTeamType"}
-                onChange={onIsGlobalUserChange}
-              />
+              {isModifiedByGlobalAdmin ? (
+                <>
+                  <Radio
+                    className={`${baseClass}__radio-input`}
+                    label={"Global user"}
+                    id={"global-user"}
+                    checked={isGlobalUser}
+                    value={UserTeamType.GlobalUser}
+                    name={"userTeamType"}
+                    onChange={onIsGlobalUserChange}
+                  />
+                  <Radio
+                    className={`${baseClass}__radio-input`}
+                    label={"Assign teams"}
+                    id={"assign-teams"}
+                    checked={!isGlobalUser}
+                    value={UserTeamType.AssignTeams}
+                    name={"userTeamType"}
+                    onChange={onIsGlobalUserChange}
+                  />
+                </>
+              ) : (
+                <p className="current-team">
+                  {currentTeam ? currentTeam.name : ""}
+                </p>
+              )}
             </div>
             <div className={`${baseClass}__teams-form-container`}>
               {isGlobalUser ? renderGlobalRoleForm() : renderTeamsForm()}

@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from "react";
 
 import { INewMembersBody, ITeam } from "interfaces/team";
+import { IUser } from "interfaces/user";
 import endpoints from "fleet/endpoints";
 import Modal from "components/modals/Modal";
 import Button from "components/buttons/Button";
@@ -14,10 +15,17 @@ interface IAddMemberModal {
   disabledMembers: number[];
   onCancel: () => void;
   onSubmit: (userIds: INewMembersBody) => void;
+  onCreateNewMember: () => void;
 }
 
 const AddMemberModal = (props: IAddMemberModal): JSX.Element => {
-  const { disabledMembers, onCancel, onSubmit, team } = props;
+  const {
+    disabledMembers,
+    onCancel,
+    onSubmit,
+    onCreateNewMember,
+    team,
+  } = props;
 
   const [selectedMembers, setSelectedMembers] = useState([]);
 
@@ -38,6 +46,7 @@ const AddMemberModal = (props: IAddMemberModal): JSX.Element => {
   return (
     <Modal onExit={onCancel} title={"Add Members"} className={baseClass}>
       <form className={`${baseClass}__form`}>
+        <p className="title">Add team members</p>
         <AutocompleteDropdown
           team={team}
           id={"member-autocomplete"}
@@ -47,6 +56,18 @@ const AddMemberModal = (props: IAddMemberModal): JSX.Element => {
           disabledOptions={disabledMembers}
           value={selectedMembers}
         />
+        <p>
+          User not here?&nbsp;
+          <Button
+            onClick={onCreateNewMember}
+            variant={"text-link"}
+            className={"light-text"}
+          >
+            <>
+              <strong>Create a user</strong>
+            </>
+          </Button>
+        </p>
         <div className={`${baseClass}__btn-wrap`}>
           <Button
             disabled={selectedMembers.length === 0}

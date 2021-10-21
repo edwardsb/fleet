@@ -21,23 +21,17 @@ import teamActions from "redux/nodes/entities/teams/actions";
 import TableContainer from "components/TableContainer";
 import TableDataError from "components/TableDataError";
 import Modal from "components/modals/Modal";
-import Spinner from "components/loaders/Spinner";
-import UserForm from "./components/UserForm";
+import { DEFAULT_CREATE_USER_ERRORS } from "utilities/constants";
 import EmptyUsers from "./components/EmptyUsers";
 import { generateTableHeaders, combineDataSets } from "./UsersTableConfig";
 import DeleteUserForm from "./components/DeleteUserForm";
 import ResetPasswordModal from "./components/ResetPasswordModal";
 import ResetSessionsModal from "./components/ResetSessionsModal";
 import { NewUserType } from "./components/UserForm/UserForm";
+import CreateUserModal from "../UserManagementPage/components/CreateUserModal";
+import EditUserModal from "../UserManagementPage/components/EditUserModal";
 
 const baseClass = "user-management";
-
-const DEFAULT_CREATE_USER_ERRORS = {
-  email: null,
-  name: null,
-  password: null,
-  sso_enabled: null,
-};
 
 const generateUpdateData = (currentUserData, formData) => {
   const updatableFields = [
@@ -459,7 +453,7 @@ export class UserManagementPage extends Component {
       teams,
       isPremiumTier,
     } = this.props;
-    const { showEditUserModal, userEditing, isFormSubmitting } = this.state;
+    const { showEditUserModal, userEditing } = this.state;
     const { onEditUser, toggleEditUserModal, getUser } = this;
 
     if (!showEditUserModal) return null;
@@ -473,12 +467,7 @@ export class UserManagementPage extends Component {
         className={`${baseClass}__edit-user-modal`}
       >
         <>
-          {isFormSubmitting && (
-            <div className="loading-spinner">
-              <Spinner />
-            </div>
-          )}
-          <UserForm
+          <EditUserModal
             serverErrors={inviteErrors}
             defaultEmail={userData.email}
             defaultName={userData.name}
@@ -493,6 +482,7 @@ export class UserManagementPage extends Component {
             smtpConfigured={config.configured}
             canUseSso={config.enable_sso}
             isSsoEnabled={userData.sso_enabled}
+            isModifiedByGlobalAdmin
           />
         </>
       </Modal>
@@ -511,34 +501,23 @@ export class UserManagementPage extends Component {
     if (!showCreateUserModal) return null;
 
     return (
-      <Modal
-        title="Create user"
-        onExit={toggleCreateUserModal}
-        className={`${baseClass}__create-user-modal`}
-      >
-        <>
-          {isFormSubmitting && (
-            <div className="loading-spinner">
-              <Spinner />
-            </div>
-          )}
-          <UserForm
-            serverErrors={createUserErrors}
-            currentUserId={currentUser.id}
-            onCancel={toggleCreateUserModal}
-            onSubmit={onCreateUserSubmit}
-            availableTeams={teams}
-            defaultGlobalRole={"observer"}
-            defaultTeams={[]}
-            defaultNewUserType={false}
-            submitText={"Create"}
-            isPremiumTier={isPremiumTier}
-            smtpConfigured={config.configured}
-            canUseSso={config.enable_sso}
-            isNewUser
-          />
-        </>
-      </Modal>
+      <CreateUserModal
+        serverErrors={createUserErrors}
+        currentUserId={currentUser.id}
+        onCancel={toggleCreateUserModal}
+        onSubmit={onCreateUserSubmit}
+        availableTeams={teams}
+        defaultGlobalRole={"observer"}
+        defaultTeams={[]}
+        defaultNewUserType={false}
+        submitText={"Create"}
+        isPremiumTier={isPremiumTier}
+        smtpConfigured={config.configured}
+        canUseSso={config.enable_sso}
+        isFormSubmitting={isFormSubmitting}
+        isModifiedByGlobalAdmin
+        isNewUser
+      />
     );
   };
 
