@@ -1,6 +1,7 @@
 import React from "react";
 
 import { ITeam } from "interfaces/team";
+import { IUserFormErrors } from "interfaces/user";
 import Modal from "components/modals/Modal";
 import UserForm from "../UserForm";
 import { IFormData } from "../UserForm/UserForm";
@@ -19,6 +20,7 @@ interface IEditUserModalProps {
   smtpConfigured: boolean;
   canUseSso: boolean; // corresponds to whether SSO is enabled for the organization
   isSsoEnabled?: boolean; // corresponds to whether SSO is enabled for the individual user
+  serverErrors?: IUserFormErrors;
   isModifiedByGlobalAdmin?: boolean | false;
 }
 
@@ -40,9 +42,8 @@ const EditUserModal = (props: IEditUserModalProps): JSX.Element => {
     isSsoEnabled,
     isModifiedByGlobalAdmin,
     currentTeam,
+    serverErrors,
   } = props;
-
-  console.log("edit defaultGlobalRole: ", defaultGlobalRole);
 
   return (
     <Modal
@@ -51,6 +52,7 @@ const EditUserModal = (props: IEditUserModalProps): JSX.Element => {
       className={`${baseClass}__edit-user-modal`}
     >
       <UserForm
+        serverErrors={serverErrors}
         defaultName={defaultName}
         defaultEmail={defaultEmail}
         defaultGlobalRole={defaultGlobalRole}

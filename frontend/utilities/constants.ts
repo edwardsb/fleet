@@ -155,5 +155,5 @@ export const DEFAULT_CREATE_USER_ERRORS = {
   email: "",
   name: "",
   password: "",
-  sso_enabled: "",
+  sso_enabled: null,
 };

@@ -86,7 +86,7 @@ export class UserManagementPage extends Component {
       isFormSubmitting: false,
       userEditing: null,
       usersEditing: [],
-      createUserErrors: DEFAULT_CREATE_USER_ERRORS,
+      createUserErrors: { DEFAULT_CREATE_USER_ERRORS },
     };
   }
 
@@ -148,7 +148,6 @@ export class UserManagementPage extends Component {
 
   onCreateUserSubmit = (formData) => {
     const { dispatch, config } = this.props;
-    const { createUserErrors } = this.state;
 
     this.setState({ isFormSubmitting: true });
 
@@ -173,12 +172,12 @@ export class UserManagementPage extends Component {
         })
         .catch((userErrors) => {
           if (userErrors.base.includes("Duplicate")) {
-            this.setState({
-              createUserErrors: {
-                ...createUserErrors,
-                email: "A user with this email address already exists",
-              },
-            });
+            dispatch(
+              renderFlash(
+                "error",
+                "A user with this email address already exists."
+              )
+            );
           } else {
             dispatch(
               renderFlash("error", "Could not create user. Please try again.")
@@ -204,12 +203,12 @@ export class UserManagementPage extends Component {
         })
         .catch((userErrors) => {
           if (userErrors.base.includes("Duplicate")) {
-            this.setState({
-              createUserErrors: {
-                ...createUserErrors,
-                email: "A user with this email address already exists",
-              },
-            });
+            dispatch(
+              renderFlash(
+                "error",
+                "A user with this email address already exists."
+              )
+            );
           } else {
             dispatch(
               renderFlash("error", "Could not create user. Please try again.")
@@ -468,7 +467,7 @@ export class UserManagementPage extends Component {
       >
         <>
           <EditUserModal
-            serverErrors={inviteErrors}
+            serverError={inviteErrors}
             defaultEmail={userData.email}
             defaultName={userData.name}
             defaultGlobalRole={userData.global_role}
@@ -490,19 +489,21 @@ export class UserManagementPage extends Component {
   };
 
   renderCreateUserModal = () => {
-    const { currentUser, config, teams, isPremiumTier } = this.props;
     const {
-      showCreateUserModal,
-      createUserErrors,
-      isFormSubmitting,
-    } = this.state;
+      currentUser,
+      config,
+      teams,
+      userErrors,
+      isPremiumTier,
+    } = this.props;
+    const { showCreateUserModal, isFormSubmitting } = this.state;
     const { onCreateUserSubmit, toggleCreateUserModal } = this;
 
     if (!showCreateUserModal) return null;
 
     return (
       <CreateUserModal
-        serverErrors={createUserErrors}
+        serverError={userErrors}
         currentUserId={currentUser.id}
         onCancel={toggleCreateUserModal}
         onSubmit={onCreateUserSubmit}

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 
 import { ITeam } from "interfaces/team";
+import { IUserFormErrors } from "interfaces/user";
 import Modal from "components/modals/Modal";
 import Spinner from "components/loaders/Spinner";
 import UserForm from "../UserForm";
@@ -19,6 +20,7 @@ interface ICreateUserModalProps {
   canUseSso: boolean; // corresponds to whether SSO is enabled for the organization
   isModifiedByGlobalAdmin?: boolean | false;
   isFormSubmitting?: boolean | false;
+  serverErrors?: IUserFormErrors;
 }
 
 const baseClass = "create-user-modal";
@@ -44,14 +46,12 @@ const CreateUserModal = (props: ICreateUserModalProps): JSX.Element => {
     canUseSso,
     isModifiedByGlobalAdmin,
     isFormSubmitting,
+    serverErrors,
   } = props;
 
   const [createUserErrors, setCreateUserErrors] = useState(
     DEFAULT_CREATE_USER_ERRORS
   );
-
-  console.log("availableTeams: ", availableTeams);
-  console.log("isModifiedByGlobalAdmin: ", isModifiedByGlobalAdmin);
 
   return (
     <Modal title="Create user" onExit={onCancel} className={baseClass}>
@@ -62,6 +62,7 @@ const CreateUserModal = (props: ICreateUserModalProps): JSX.Element => {
           </div>
         )}
         <UserForm
+          serverErrors={serverErrors}
           defaultGlobalRole={defaultGlobalRole}
           defaultTeamRole={defaultTeamRole}
           defaultTeams={defaultTeams}
@@ -73,7 +74,6 @@ const CreateUserModal = (props: ICreateUserModalProps): JSX.Element => {
           smtpConfigured={smtpConfigured}
           canUseSso={canUseSso}
           isModifiedByGlobalAdmin={isModifiedByGlobalAdmin}
-          serverErrors={createUserErrors}
           currentTeam={currentTeam}
           isNewUser
         />

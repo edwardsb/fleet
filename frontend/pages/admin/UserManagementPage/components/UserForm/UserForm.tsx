@@ -26,6 +26,7 @@ import InfoBanner from "components/InfoBanner/InfoBanner";
 import SelectedTeamsForm from "../SelectedTeamsForm/SelectedTeamsForm";
 import OpenNewTabIcon from "../../../../../../assets/images/open-new-tab-12x12@2x.png";
 import SelectRoleForm from "../SelectRoleForm/SelectRoleForm";
+import { IUserFormErrors } from "interfaces/user";
 
 const baseClass = "create-user-form";
 
@@ -67,13 +68,6 @@ export interface IFormData {
   teams: ITeam[];
   currentUserId?: number;
   invited_by?: number;
-}
-
-interface IUserFormErrors {
-  email: string | null;
-  name: string | null;
-  password: string | null;
-  sso_enabled: boolean | null;
 }
 
 interface ICreateUserFormProps {

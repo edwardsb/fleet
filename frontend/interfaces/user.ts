@@ -41,3 +41,10 @@ export interface IUserUpdateBody {
   email?: string;
   sso_enabled?: boolean;
 }
+
+export interface IUserFormErrors {
+  email: string | null;
+  name: string | null;
+  password: string | null;
+  sso_enabled: boolean | null;
+}

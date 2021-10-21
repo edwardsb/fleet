@@ -130,11 +130,10 @@ const MembersPage = (props: IMembersPageProps): JSX.Element => {
   const [showEditUserModal, setShowEditUserModal] = useState(false);
   const [showCreateUserModal, setShowCreateUserModal] = useState(false);
   const [isFormSubmitting, setIsFormSubmitting] = useState(false);
-  const [createUserErrors, setCreateUserErrors] = useState(
-    DEFAULT_CREATE_USER_ERRORS
-  );
   const [userEditing, setUserEditing] = useState<IUser>();
   const [searchString, setSearchString] = useState<string>("");
+  const [createUserErrors] = useState(DEFAULT_CREATE_USER_ERRORS);
+  const [editUserErrors] = useState(DEFAULT_CREATE_USER_ERRORS);
 
   const toggleAddUserModal = useCallback(() => {
     setShowAddMemberModal(!showAddMemberModal);
@@ -211,6 +210,21 @@ const MembersPage = (props: IMembersPageProps): JSX.Element => {
     [dispatch, teamId, toggleAddUserModal, team.name]
   );
 
+  const fetchUsers = useCallback(
+    (fetchParams: IFetchParams) => {
+      const { pageIndex, pageSize, searchQuery } = fetchParams;
+      dispatch(
+        userActions.loadAll({
+          page: pageIndex,
+          perPage: pageSize,
+          globalFilter: searchQuery,
+          teamId,
+        })
+      );
+    },
+    [dispatch, teamId]
+  );
+
   const onCreateMemberSubmit = (formData: IFormData) => {
     setIsFormSubmitting(true);
 
@@ -231,14 +245,17 @@ const MembersPage = (props: IMembersPageProps): JSX.Element => {
               `An invitation email was sent from ${config.sender_address} to ${formData.email}.`
             )
           );
+          fetchUsers(tableQueryData);
           toggleCreateMemberModal();
         })
         .catch((userErrors: any) => {
           if (userErrors.base.includes("Duplicate")) {
-            setCreateUserErrors({
-              ...createUserErrors,
-              email: "A user with this email address already exists",
-            });
+            dispatch(
+              renderFlash(
+                "error",
+                "A user with this email address already exists."
+              )
+            );
           } else {
             dispatch(
               renderFlash("error", "Could not create user. Please try again.")
@@ -260,14 +277,17 @@ const MembersPage = (props: IMembersPageProps): JSX.Element => {
           dispatch(
             renderFlash("success", `Successfully created ${requestData.name}.`)
           );
+          fetchUsers(tableQueryData);
           toggleCreateMemberModal();
         })
         .catch((userErrors: any) => {
           if (userErrors.base.includes("Duplicate")) {
-            setCreateUserErrors({
-              ...createUserErrors,
-              email: "A user with this email address already exists",
-            });
+            dispatch(
+              renderFlash(
+                "error",
+                "A user with this email address already exists."
+              )
+            );
           } else {
             dispatch(
               renderFlash("error", "Could not create user. Please try again.")
@@ -279,21 +299,6 @@ const MembersPage = (props: IMembersPageProps): JSX.Element => {
         });
     }
   };
-
-  const fetchUsers = useCallback(
-    (fetchParams: IFetchParams) => {
-      const { pageIndex, pageSize, searchQuery } = fetchParams;
-      dispatch(
-        userActions.loadAll({
-          page: pageIndex,
-          perPage: pageSize,
-          globalFilter: searchQuery,
-          teamId,
-        })
-      );
-    },
-    [dispatch, teamId]
-  );
 
   const onEditMemberSubmit = useCallback(
     (formData: IFormData) => {
@@ -434,6 +439,7 @@ const MembersPage = (props: IMembersPageProps): JSX.Element => {
       ) : null}
       {showEditUserModal ? (
         <EditUserModal
+          serverErrors={editUserErrors}
           onCancel={toggleEditMemberModal}
           onSubmit={onEditMemberSubmit}
           defaultName={userEditing?.name}
@@ -452,6 +458,7 @@ const MembersPage = (props: IMembersPageProps): JSX.Element => {
       ) : null}
       {showCreateUserModal ? (
         <CreateUserModal
+          serverErrors={createUserErrors}
           onCancel={toggleCreateMemberModal}
           onSubmit={onCreateMemberSubmit}
           defaultGlobalRole={userEditing?.global_role}
