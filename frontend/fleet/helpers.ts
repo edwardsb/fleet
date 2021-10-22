@@ -1,4 +1,4 @@
-import { flatMap, omit, pick, size, memoize, toNumber } from "lodash";
+import { flatMap, omit, pick, size, memoize } from "lodash";
 import md5 from "js-md5";
 import moment from "moment";
 import yaml from "js-yaml";
@@ -6,10 +6,7 @@ import yaml from "js-yaml";
 import { ILabel } from "interfaces/label";
 import { ITeam } from "interfaces/team";
 import { IUser } from "interfaces/user";
-import {
-  IPackQueryFormData,
-  IScheduledQuery,
-} from "interfaces/scheduled_query";
+import { IPackQueryFormData } from "interfaces/scheduled_query";
 
 import stringUtils from "utilities/strings";
 import sortUtils from "utilities/sort";

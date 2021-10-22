@@ -21,7 +21,7 @@ interface IRootState {
 const { HOME } = paths;
 
 /**
- * Checks if a user is a any maintainer or any admin when routing
+ * Checks if a user is any maintainer or any admin when routing
  */
 const AuthAnyMaintainerAnyAdminRoutes = (
   props: IAuthAnyMaintainerAnyAdminRoutesProps
