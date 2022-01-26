@@ -5,11 +5,11 @@ data "aws_iam_policy_document" "fleet" {
     resources = ["*"]
   }
 
-  statement {
-    effect    = "Allow"
-    actions   = ["secretsmanager:GetSecretValue"]
-    resources = [aws_secretsmanager_secret.database_password_secret.arn]
-  }
+#  statement {
+#    effect    = "Allow"
+#    actions   = ["secretsmanager:GetSecretValue"]
+#    resources = [aws_secretsmanager_secret.database_password_secret.arn]
+#  }
 
   // useful when there is a static number of mysql cluster members
   dynamic "statement" {
