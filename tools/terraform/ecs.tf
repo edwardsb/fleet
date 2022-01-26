@@ -154,16 +154,16 @@ resource "aws_ecs_task_definition" "backend" {
             hardLimit = 999999
           }
         ],
-        secrets = [
-          {
-            name      = "FLEET_MYSQL_PASSWORD"
-            valueFrom = aws_secretsmanager_secret.database_password_secret.arn
-          },
-          {
-            name      = "FLEET_MYSQL_READ_REPLICA_PASSWORD"
-            valueFrom = aws_secretsmanager_secret.database_password_secret.arn
-          }
-        ]
+        #        secrets = [
+        #          {
+        #            name      = "FLEET_MYSQL_PASSWORD"
+        #            valueFrom = aws_secretsmanager_secret.database_password_secret.arn
+        #          },
+        #          {
+        #            name      = "FLEET_MYSQL_READ_REPLICA_PASSWORD"
+        #            valueFrom = aws_secretsmanager_secret.database_password_secret.arn
+        #          }
+        #        ]
         environment = [
           {
             name  = "FLEET_MYSQL_USERNAME"
@@ -176,6 +176,14 @@ resource "aws_ecs_task_definition" "backend" {
           {
             name  = "FLEET_MYSQL_ADDRESS"
             value = "${module.aurora_mysql.rds_cluster_endpoint}:3306"
+          },
+          {
+            name  = "FLEET_MYSQL_PASSWORD"
+            value = random_password.database_password.result
+          },
+          {
+            name  = "FLEET_MYSQL_READ_REPLICA_PASSWORD"
+            value = random_password.database_password.result
           },
           {
             name  = "FLEET_MYSQL_READ_REPLICA_USERNAME"
@@ -286,12 +294,12 @@ resource "aws_ecs_task_definition" "migration" {
           }
         },
         command = ["fleet", "prepare", "--no-prompt=true", "db"]
-        secrets = [
-          {
-            name      = "FLEET_MYSQL_PASSWORD"
-            valueFrom = aws_secretsmanager_secret.database_password_secret.arn
-          }
-        ]
+#        secrets = [
+#          {
+#            name      = "FLEET_MYSQL_PASSWORD"
+#            valueFrom = aws_secretsmanager_secret.database_password_secret.arn
+#          }
+#        ]
         environment = [
           {
             name  = "FLEET_MYSQL_USERNAME"
@@ -300,6 +308,14 @@ resource "aws_ecs_task_definition" "migration" {
           {
             name  = "FLEET_MYSQL_DATABASE"
             value = var.database_name
+          },
+          {
+            name  = "FLEET_MYSQL_PASSWORD"
+            value = random_password.database_password.result
+          },
+          {
+            name  = "FLEET_MYSQL_READ_REPLICA_PASSWORD"
+            value = random_password.database_password.result
           },
           {
             name  = "FLEET_MYSQL_ADDRESS"

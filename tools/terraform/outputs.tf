@@ -53,3 +53,7 @@ output "aws_alb_target_group_name" {
 output "aws_alb_name" {
   value = aws_alb.main.name
 }
+
+output "fleet_db_password" {
+  value = random_password.database_password.result
+}

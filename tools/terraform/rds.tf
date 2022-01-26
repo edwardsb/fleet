@@ -3,14 +3,14 @@ resource "random_password" "database_password" {
   special = false
 }
 
-resource "aws_secretsmanager_secret" "database_password_secret" {
-  name = "/fleet/database/password/master"
-}
+#resource "aws_secretsmanager_secret" "database_password_secret" {
+#  name = "/fleet/database/password/master"
+#}
 
-resource "aws_secretsmanager_secret_version" "database_password_secret_version" {
-  secret_id     = aws_secretsmanager_secret.database_password_secret.id
-  secret_string = random_password.database_password.result
-}
+#resource "aws_secretsmanager_secret_version" "database_password_secret_version" {
+#  secret_id     = aws_secretsmanager_secret.database_password_secret.id
+#  secret_string = random_password.database_password.result
+#}
 
 // if you want to use RDS Serverless option prefer the following commented block
 //module "aurora_mysql_serverless" {
