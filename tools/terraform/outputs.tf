@@ -56,4 +56,5 @@ output "aws_alb_name" {
 
 output "fleet_db_password" {
   value = random_password.database_password.result
+  sensitive = true
 }
