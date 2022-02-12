@@ -195,11 +195,11 @@ resource "aws_ecs_task_definition" "backend" {
           },
           {
             name  = "FLEET_FIREHOSE_STATUS_STREAM"
-            value = aws_kinesis_firehose_delivery_stream.osquery_status.name
+            value = aws_kinesis_firehose_delivery_stream.main.name
           },
           {
             name  = "FLEET_FIREHOSE_RESULT_STREAM"
-            value = aws_kinesis_firehose_delivery_stream.osquery_results.name
+            value = aws_kinesis_firehose_delivery_stream.main.name
           },
           {
             name  = "FLEET_FIREHOSE_REGION"
